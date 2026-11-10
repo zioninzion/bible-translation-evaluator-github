@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bible Translation · Weighting Explorer</title>
+<style>
+:root { --ink:#14213d;--muted:#5a6683;--surface:#fff;--border:#e2e8f0;--page:#f4f7fc;--violet:#7658f2;--blue:#1c84d8; }
+* {box-sizing:border-box} html{font-family:"Avenir Next",Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--page)}
+body{margin:0;background:radial-gradient(circle at 80% 0%,#e9e9ff 0%,transparent 33%),radial-gradient(circle at 0% 18%,#ddecfd 0%,transparent 30%),var(--page);min-height:100vh}
+main{max-width:1240px;padding:37px 24px 45px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:start;gap:25px;margin-bottom:24px}
+.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:900;color:#7161bb;margin-bottom:10px}
+h1{font-size:clamp(27px,3vw,42px);letter-spacing:-1.8px;line-height:1.15;margin:0 0 9px;font-weight:850}
+.lead{font-size:14px;color:var(--muted);line-height:1.6;margin:0;max-width:760px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding-top:6px}
+button{font-family:inherit;cursor:pointer;transition:all .16s ease}
+.btn{background:white;color:#34415e;border:1px solid #d6def0;border-radius:12px;padding:11px 14px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px #25346108}
+.btn:hover{background:#f6f7ff;border-color:#a2a2ed;transform:translateY(-1px)}
+.btn-primary{background:var(--ink);color:white;border-color:var(--ink)}.btn-primary:hover{background:#2c3d69;color:white}
+.scope-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);border-radius:15px;padding:12px 17px;margin:0 0 17px}.scope-bar select,.scope-bar input{font:inherit}.scope-bar select{padding:8px 10px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:var(--ink)}.scope-status{font-size:12px;color:#64748b;flex:1;min-width:200px}.scope-status.warning{color:#9a3412}.scope-upload{display:none}.scope-upload.active{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.scope-upload input{max-width:220px;font-size:11px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px;margin-bottom:20px}
+.control{border:1px solid var(--border);border-radius:19px;background:rgba(255,255,255,.94);padding:18px 18px 16px;box-shadow:0 8px 23px #2433620c}
+.control-top{display:flex;gap:14px;justify-content:space-between;align-items:start}
+.control-title{font-size:14px;font-weight:850;letter-spacing:-.3px}
+.control-sub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4;min-height:30px}
+.ratio{font-size:15px;font-weight:900;letter-spacing:-.5px;min-width:76px;text-align:right;border-radius:9px;background:#f0eaff;color:#5a3fbc;padding:8px}
+.control.readable .ratio{background:#e5f3ff;color:#1269b3}
+.control.overall{grid-column:auto;background:linear-gradient(110deg,#fff 30%,#f5fff8 100%)}
+.control.overall .ratio{background:#e4f8ef;color:#087c60}
+.control.overall input[type=range]::-webkit-slider-thumb{background:#0f9c80;box-shadow:0 1px 0 2px #0f9c80,0 3px 14px #0f9c8044}
+.control.overall input[type=range]::-moz-range-thumb{background:#0f9c80;box-shadow:0 1px 0 2px #0f9c80}
+.overall-inline{font-size:11px;color:#547269;font-weight:700;margin:9px 0 0;line-height:1.35}
+input[type=range]{appearance:none;width:100%;height:7px;border-radius:99px;background:#e5eaf4;outline:none;margin:27px 0 19px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:23px;height:23px;border-radius:50%;background:#7658f2;border:4px solid white;box-shadow:0 1px 0 2px #7658f2,0 3px 14px #7658f244}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#7658f2;border:4px solid white;box-shadow:0 1px 0 2px #7658f2}
+.control.readable input[type=range]::-webkit-slider-thumb{background:#1c84d8;box-shadow:0 1px 0 2px #1c84d8,0 3px 14px #1c84d844}
+.control.readable input[type=range]::-moz-range-thumb{background:#1c84d8;box-shadow:0 1px 0 2px #1c84d8}
+.range-head{display:flex;justify-content:space-between;gap:12px;font-weight:800;color:#273451;font-size:12px}
+.range-values{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#8993a9;margin-top:5px}
+.chart-card{background:white;border:1px solid var(--border);border-radius:21px;padding:19px 23px 17px;box-shadow:0 10px 34px #1b31500b;position:relative;overflow:hidden}
+.chart-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;flex-wrap:wrap}
+.chart-title{font-size:17px;font-weight:850;letter-spacing:-.5px}
+.chart-note{font-size:11px;color:#8793aa;font-weight:700}
+#plot{width:100%;height:auto;display:block;overflow:visible;touch-action:pan-y}
+.axis-tick{font-family:inherit;font-size:12px;fill:#8b94a8;font-weight:650}
+.axis-title{font-family:inherit;font-size:14px;fill:#40516c;font-weight:850}
+.dot{cursor:pointer;transition:opacity .15s, r .15s}
+.dot:focus{outline:none;stroke:#1c2d50;stroke-width:4}
+.dot-label{font-size:12px;font-weight:900;fill:#273451;pointer-events:none}
+.tag{fill:#fff;stroke:#e9edf5;stroke-width:1;pointer-events:none}
+.guide{stroke:#edf1f7;stroke-width:1.3}
+.pill{background:#f2f5fa;color:#55647e;border-radius:18px;font-size:11px;font-weight:800;padding:7px 10px}
+.axis-annotation{display:flex;justify-content:space-between;gap:8px;color:#76849c;font-weight:650;font-size:11px;margin:2px 0 6px 54px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:15px 3px 2px;border-top:1px solid #eef1f6;margin-top:5px}
+.legend-label{font-size:11px;font-weight:900;color:#9ca8bb;letter-spacing:1px;margin-right:2px;text-transform:uppercase}
+.translation-toggle{display:inline-flex;gap:7px;align-items:center;font-size:12px;font-weight:850;color:#34415c;cursor:pointer;border:1px solid #d9e1f0;background:#f9fbff;padding:8px 11px;border-radius:999px;transition:background .16s,opacity .16s,border-color .16s}
+.translation-toggle:hover{border-color:#8b98b8;background:#eef4ff}
+.translation-toggle.off{opacity:.48;background:#f1f3f7;text-decoration:line-through}
+.translation-toggle input{margin:0;accent-color:#6366f1;width:14px;height:14px;cursor:pointer}
+.legend-action{font-size:11px;font-weight:800;border:1px solid #d8e0ee;background:white;border-radius:8px;padding:7px 10px;color:#56657f;cursor:pointer}
+.legend-action:hover{border-color:#8998b9;color:#1b2e4e}
+.legend-actions{display:flex;gap:6px;margin-right:7px}
+.visibility-count{color:#8290a8;font-weight:750;font-size:11px;margin-left:auto}
+.table-head .sort-summary{font-size:11px;color:#75849e}
+.sort-btn{border:0;background:none;display:inline-flex;justify-content:flex-end;align-items:center;gap:5px;padding:4px 0;font:inherit;font-weight:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;cursor:pointer;width:100%;white-space:nowrap}
+.sort-btn:hover{color:#2563eb}
+th:first-child .sort-btn{justify-content:flex-start}
+th[aria-sort=ascending],th[aria-sort=descending]{background:#f1f5ff;color:#3730a3}
+.sort-mark{font-size:12px;color:#8895af}
+th[aria-sort=ascending] .sort-mark,th[aria-sort=descending] .sort-mark{color:#5149c8}
+.table-version{display:flex;align-items:center;gap:7px}
+.table-version label{cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.table-version input{accent-color:#6366f1;margin:0;width:14px;height:14px;cursor:pointer}
+.empty-state{padding:30px 10px;text-align:center;color:#78879d;font-size:13px;font-weight:700}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+.tooltip{position:fixed;z-index:5;pointer-events:none;background:#192541;color:white;border-radius:11px;padding:12px 15px;box-shadow:0 10px 35px #0003;min-width:175px;font-size:12px;line-height:1.7;opacity:0;transition:opacity .1s}
+.tooltip strong{font-size:14px}.tooltip .mini{color:#c5cee6;font-size:11px}
+.table-card{margin-top:18px;background:#fff;border:1px solid var(--border);border-radius:19px;padding:19px 22px 18px;box-shadow:0 8px 25px #1b31500a}
+.table-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.table-head strong{font-size:15px;font-weight:850}.table-head span{font-size:11px;color:#8490a7}
+.table-wrap{overflow-x:auto} table{width:100%;border-collapse:collapse;min-width:830px} th,td{padding:11px 10px;text-align:right;border-bottom:1px solid #edf1f7;font-size:12px;font-variant-numeric:tabular-nums}th{text-transform:uppercase;letter-spacing:.8px;color:#8690a5;font-size:10px;font-weight:900}td{color:#4d5c77;font-weight:650}tr:last-child td{border-bottom:0}th:first-child,td:first-child{text-align:left}td:first-child{font-weight:900;color:#273550}.sorted{background:#f7f8ff;color:#4b3bc0}td.sorted{color:#3528a5;font-weight:900}.overall-col{background:#ecfdf5;color:#047857;font-weight:900}td.overall-col{font-size:13px;color:#047857}.formula-note{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.5}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+footer{font-size:12px;color:#6d7b93;line-height:1.6;margin:15px 3px 0}footer strong{color:#495974}
+@media(max-width:960px){.controls{grid-template-columns:1fr}.control.overall{grid-column:auto}header{flex-direction:column}main{padding:22px 12px 30px}.chart-card{padding:14px 8px}.axis-annotation{margin-left:45px}.actions{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Axis-integrated controls: horizontal control tracks the x axis, vertical tracks y. */
+.plot-with-axis-controls{display:grid;grid-template-columns:112px minmax(0,1fr);align-items:stretch;gap:0}
+.plot-main{min-width:0;position:relative}
+.plot-main #plot{width:100%}
+.axis-control{font-size:10px;color:#53617d;min-width:0}
+.axis-control strong{font-size:11px;color:#34415e}
+.axis-control output{background:#f0eaff;color:#5a3fbc;border-radius:7px;padding:3px 7px;font-size:12px;font-weight:900;white-space:nowrap}
+.axis-control input[type=range]{margin:0;accent-color:#7658f2;cursor:pointer}
+.axis-control-x{margin: -5px 7.5% 8px 7.5%;padding:8px 12px 6px;border-radius:12px;background:#f7f4ff;border:1px solid #e5dcff;position:relative;z-index:1}
+.axis-control-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}
+.axis-control-x input{display:block;width:100%;height:7px}
+.axis-endpoints{display:flex;justify-content:space-between;gap:8px;margin-top:11px;font-weight:700;flex-wrap:wrap}
+.axis-control-y{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px;margin:12px 5px 65px 0;padding:12px 7px;background:#eff7ff;border:1px solid #d9eafb;border-radius:12px}
+.axis-y-heading{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+.axis-control-y output{background:#e5f3ff;color:#1269b3}
+.axis-control-y input[type=range]{appearance:slider-vertical;writing-mode:vertical-lr;direction:rtl;height:clamp(180px,31vw,340px);width:23px;min-height:160px;background:transparent;accent-color:#1c84d8}
+.axis-y-label{text-align:center;font-size:10px;font-weight:750}
+.axis-y-values{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:#64748b}
+.controls-overall{grid-template-columns:minmax(0,1fr);max-width:100%;margin-top:16px}
+.controls-overall .control.overall{padding:14px 20px}
+.controls-overall .control-sub{min-height:0}
+@media(max-width:700px){.plot-with-axis-controls{grid-template-columns:82px minmax(0,1fr)}.axis-control-x{margin-left:0;margin-right:0;padding:8px}.axis-control-head{flex-wrap:wrap}.axis-endpoints{font-size:9px;gap:3px}.axis-control-y{margin-bottom:40px;padding:8px 3px}.axis-control-y input[type=range]{height:180px}.axis-control strong{font-size:10px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <div class="eyebrow">11 translation · quantitative comparison</div>
+    <h1>Bible Translation Explorer<span style="color:#795ce9">.</span></h1>
+    <p class="lead">Adjust literalness, readability, and their contribution to the overall score. All three ratios start at 1:1 and can be adjusted from 1:2 to 2:1. Literalness and readability sliders are placed along their chart axes; the overall slider below the chart changes rankings and overall scores.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" id="csvBtn" type="button">↓ Export CSV</button>
+    <button class="btn btn-primary" id="pngBtn" type="button">↓ Save chart PNG</button>
+  </div>
+</header>
+
+
+
+<section class="scope-bar" aria-label="Passage comparison">
+  <label for="scopeSelect"><strong>Compare passage</strong></label>
+  <select id="scopeSelect"><option value="all">Whole Bible (current scores)</option><option value="john1">John 1 (12 translations · scores included)</option><option value="romans8">Romans 8 (12 translations · scores included)</option></select>
+  <div class="scope-upload" id="scopeUpload"><label for="chapterFile" class="btn">Replace passage scores CSV</label><input type="file" id="chapterFile" accept=".csv,text/csv"><button type="button" class="legend-action" id="templateBtn">CSV template</button></div>
+  <span class="scope-status" id="scopeStatus">Whole-Bible scores loaded for 11 translations (NWT is passage-only).</span>
+</section>
+<section class="chart-card" aria-labelledby="scatterTitle">
+  <div class="chart-title-row"><span class="chart-title" id="scatterTitle">Literalness × Readability</span><span class="pill" id="topOverall">Top overall: —</span></div>
+  <div class="plot-with-axis-controls">
+<div class="axis-control axis-control-y" aria-label="Readability axis weighting"><div class="axis-y-heading"><strong>Readability axis</strong><output id="readRatio" for="readSlider">1 : 1</output></div><div class="axis-y-label">2:1 · Fluency</div><input id="readSlider" aria-label="Syntactic fluency weighting, percent" type="range" min="33.3333333333" max="66.6666666667" step="any" value="50"><div class="axis-y-label">1:2 · Vocabulary</div><div class="axis-y-values"><span id="readLeft">50.0%</span><span id="readRight">50.0%</span></div></div>
+    <div class="plot-main">
+  <svg id="plot" role="img" aria-label="Scatter plot showing 11 translations’ literalness and readability scores, with the third weighting slider changing their overall ranking" viewBox="0 0 1100 620" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="axis-control axis-control-x" aria-label="Literalness axis weighting"><div class="axis-control-head"><strong>Literalness axis · Transfer / Lexical</strong><output id="litRatio" for="litSlider">1 : 1</output></div><input id="litSlider" aria-label="Syntactic transfer weighting, percent" type="range" min="33.3333333333" max="66.6666666667" step="any" value="50"><div class="axis-endpoints"><span>1:2 · Lexical</span><span id="litLeft">50.0%</span><span id="litRight">50.0%</span><span>2:1 · Transfer</span></div></div>
+    </div>
+  </div>
+  <div class="legend" id="legend"><span class="legend-label">Show translations</span><div class="legend-actions"><button type="button" class="legend-action" id="showAllBtn">Show all</button><button type="button" class="legend-action" id="hideAllBtn">Hide all</button></div><span id="visibilityCount" class="visibility-count" aria-live="polite">11 of 11 shown</span></div>
+</section>
+
+<section class="controls controls-overall" aria-label="Overall weighting adjustment">
+  <article class="control overall">
+    <div class="control-top">
+      <div><div class="control-title">Overall score weighting</div><div class="control-sub">Choose how much literalness counts versus readability in the final overall score</div></div>
+      <output class="ratio" id="overallRatio" for="overallSlider">1 : 1</output>
+    </div>
+    <input id="overallSlider" aria-label="Overall literalness weighting, percent" type="range" min="33.3333333333" max="66.6666666667" step="any" value="50">
+    <div class="range-head"><span>1:2 · Readability emphasis</span><span>2:1 · Literalness emphasis</span></div>
+    <div class="range-values"><span id="overallLeft">Literalness 50.0%</span><span id="overallRight">Readability 50.0%</span></div>
+    <button type="button" class="btn" id="equalWeightsBtn" title="Set Literalness, Readability, and Overall to 1:1">1:1 preset · All three weights</button>
+    <p class="overall-inline">This slider changes the overall scores and rankings without changing each translation's X/Y coordinates.</p>
+  </article>
+</section>
+
+<section class="table-card" aria-label="Full interactive score table">
+  <div class="table-head"><strong>Weighted scores · live data</strong><span id="sortSummary" class="sort-summary">Sorted by Overall, highest first · click any column heading to sort</span></div>
+  <p class="formula-note"><strong id="overallFormula">Overall = 50.0% × Literalness + 50.0% × Readability.</strong> Both axis scores use their own adjustable component ratios. Untick a translation to remove it from the chart and table; CSV exports include only visible translations.</p>
+  <div class="table-wrap"><table><thead><tr>
+    <th data-key="name"><button type="button" class="sort-btn" data-sort="name">Translation <span class="sort-mark">↕</span></button></th>
+    <th data-key="t"><button type="button" class="sort-btn" data-sort="t">Transfer <span class="sort-mark">↕</span></button></th>
+    <th data-key="l"><button type="button" class="sort-btn" data-sort="l">Lexical <span class="sort-mark">↕</span></button></th>
+    <th data-key="f"><button type="button" class="sort-btn" data-sort="f">Fluency <span class="sort-mark">↕</span></button></th>
+    <th data-key="v"><button type="button" class="sort-btn" data-sort="v">Vocabulary <span class="sort-mark">↕</span></button></th>
+    <th data-key="x"><button type="button" class="sort-btn" data-sort="x">Literalness <span class="sort-mark">↕</span></button></th>
+    <th data-key="y"><button type="button" class="sort-btn" data-sort="y">Readability <span class="sort-mark">↕</span></button></th>
+    <th data-key="overall" class="overall-col"><button type="button" class="sort-btn" data-sort="overall">Overall <span class="sort-mark">↕</span></button></th>
+    <th data-key="c"><button type="button" class="sort-btn" data-sort="c">Align coverage <span class="sort-mark">↕</span></button></th>
+  </tr></thead><tbody id="dataRows"></tbody></table></div>
+</section>
+<footer><strong>Interpretation note:</strong> Whole-Bible components come from your 11-translation MACULA experiment. John 1 and Romans 8 require independently computed passage-only scores; whole-Bible scores are never reused for either chapter. These are experimental proxies, not validated measurements of translation quality. Syntactic transfer and lexical consistency are particularly sensitive to imperfect automatic word alignments. Overall is the adjustable weighted average of literalness and readability, not the original study's separate balance-penalty formula.</footer>
+</main>
+<div class="tooltip" id="tooltip" role="status"></div>
+<script>
+'use strict';
+// Component columns: transfer, lexical, fluency, vocabulary, alignment coverage.
+const originals = [
+  {name:'LSV',t:14.14,l:50.93,f:69.59,v:95.29,c:81.99,color:'#7543e4'},
+  {name:'RCV',t:14.86,l:46.02,f:71.99,v:96.35,c:81.70,color:'#1679e2'},
+  {name:'ESV',t:15.18,l:45.06,f:72.45,v:96.07,c:80.82,color:'#f28c24'},
+  {name:'NKJV',t:14.45,l:45.58,f:71.95,v:96.05,c:79.73,color:'#16a3a2'},
+  {name:'NASB',t:14.71,l:44.81,f:71.89,v:96.40,c:80.93,color:'#e0599b'},
+  {name:'ASV',t:13.40,l:47.17,f:67.83,v:94.85,c:79.14,color:'#65a439'},
+  {name:'KJV',t:12.65,l:48.22,f:68.12,v:94.87,c:78.18,color:'#d35b4d'},
+  {name:'YLT',t:11.87,l:51.46,f:65.82,v:94.34,c:79.99,color:'#8b6aaf'},
+  {name:'CSB',t:12.53,l:43.18,f:72.98,v:94.65,c:73.02,color:'#09a5c5'},
+  {name:'NIV',t:10.87,l:43.24,f:72.43,v:95.36,c:70.26,color:'#ef6c64'},
+  {name:'NLT',t:7.32,l:44.45,f:74.59,v:95.27,c:0,color:'#7985a5'},
+  {name:'NWT',t:null,l:null,f:null,v:null,c:null,color:'#a05f25',passageOnly:true}
+];
+// NLT coverage is not used as a chart coordinate. Set separately from original report:
+originals.find(x=>x.name==='NLT').c = null; // not reported in latest pasted table
+const $ = id => document.getElementById(id);
+const passageScores={"john1":[{"name":"NASB","t":16.49214659685864,"l":68.21120689655173,"f":66.9757379075877,"v":98.45111326234269,"c":86.95652173913044,"color":"#e0599b"},{"name":"RCV","t":16.75392670157068,"l":68.34224598930481,"f":65.21944313355357,"v":98.32841691248771,"c":88.76811594202898,"color":"#1679e2"},{"name":"ESV","t":14.659685863874346,"l":69.44444444444444,"f":68.94885890388139,"v":98.28629032258064,"c":83.33333333333333,"color":"#f28c24"},{"name":"NKJV","t":14.136125654450261,"l":70.46511627906976,"f":66.87321258341278,"v":97.73844641101279,"c":83.09178743961353,"color":"#16a3a2"},{"name":"LSV","t":15.575916230366492,"l":69.42949407965554,"f":63.87106402029548,"v":98.07877041306436,"c":86.35265700483092,"color":"#7543e4"},{"name":"CSB","t":12.958115183246074,"l":70.17994858611826,"f":68.97672826830937,"v":96.47532729103726,"c":77.53623188405797,"color":"#09a5c5"},{"name":"NWT","t":13.350785340314136,"l":69.68215158924205,"f":67.85077288941736,"v":97.55868544600939,"c":79.46859903381643,"color":"#a05f25"},{"name":"NIV","t":10.99476439790576,"l":72.50673854447439,"f":66.88034188034187,"v":97.70916334661355,"c":74.27536231884058,"color":"#ef6c64"},{"name":"ASV","t":13.350785340314136,"l":67.67676767676768,"f":63.550519357884795,"v":96.24134520276954,"c":85.7487922705314,"color":"#65a439"},{"name":"KJV","t":12.958115183246074,"l":68.33930704898447,"f":63.19708491761724,"v":96.02385685884691,"c":81.52173913043478,"color":"#d35b4d"},{"name":"YLT","t":13.481675392670157,"l":66.88815060908084,"f":63.24836988737404,"v":96.85714285714286,"c":83.93719806763285,"color":"#8b6aaf"},{"name":"NLT","t":8.769633507853403,"l":71.26805778491172,"f":70.8278364116095,"v":96.24134520276954,"c":62.80193236714976,"color":"#7985a5"}],"romans8":[{"name":"ESV","t":13.122923588039868,"l":65.9121171770972,"f":70.05356545028457,"v":98.37310195227765,"c":83.00153139356814,"color":"#f28c24"},{"name":"RCV","t":13.787375415282392,"l":64.55368693402329,"f":68.1075730077545,"v":98.04347826086956,"c":84.99234303215927,"color":"#1679e2"},{"name":"CSB","t":12.790697674418604,"l":64.65638148667601,"f":70.76292882744495,"v":97.15536105032822,"c":81.31699846860643,"color":"#09a5c5"},{"name":"NASB","t":13.455149501661129,"l":63.38028169014085,"f":69.4540864626065,"v":98.83720930232558,"c":85.75803981623277,"color":"#e0599b"},{"name":"NKJV","t":12.29235880398671,"l":65.24064171122994,"f":69.5271164021164,"v":98.1541802388708,"c":83.76722817764166,"color":"#16a3a2"},{"name":"NWT","t":11.794019933554818,"l":64.81994459833795,"f":71.1971197119712,"v":98.58585858585859,"c":81.01071975497703,"color":"#a05f25"},{"name":"NIV","t":10.96345514950166,"l":67.64252696456086,"f":69.54022988505747,"v":98.33679833679834,"c":76.26339969372128,"color":"#ef6c64"},{"name":"LSV","t":13.289036544850498,"l":65.21739130434783,"f":66.22929309496473,"v":98.25708061002179,"c":84.37978560490046,"color":"#7543e4"},{"name":"ASV","t":11.461794019933555,"l":66.52892561983471,"f":67.67255751917305,"v":97.00996677740864,"c":82.08269525267994,"color":"#65a439"},{"name":"YLT","t":12.12624584717608,"l":66.40926640926641,"f":64.66990748000627,"v":97.58656873032528,"c":84.83920367534456,"color":"#8b6aaf"},{"name":"KJV","t":10.96345514950166,"l":66.04850213980029,"f":67.62852404643449,"v":96.8026460859978,"c":79.32618683001532,"color":"#d35b4d"},{"name":"NLT","t":7.142857142857143,"l":68.46473029045643,"f":71.43064002316827,"v":97.69797421731123,"c":57.88667687595712,"color":"#7985a5"}]};
+const passageLabels={john1:"John 1:1–51",romans8:"Romans 8:1–39"};
+function sourceRows(){const scope=currentScope();return scope==='all'?originals.filter(r=>!r.passageOnly):(passageScores[scope]||[]);}
+function currentScope(){return $('scopeSelect').value;}
+function parseCSV(text){
+ const records=[];let row=[],field='',quoted=false;
+ for(let i=0;i<text.length;i++){
+  const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;}
+  else if(c===','&&!quoted){row.push(field.trim());field='';}
+  else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field.trim());field='';if(row.some(x=>x))records.push(row);row=[];}
+  else field+=c;
+ }
+ if(quoted)throw Error('Unclosed CSV quote');row.push(field.trim());if(row.some(x=>x))records.push(row);
+ if(!records.length)throw Error('CSV is empty');
+ const headers=records.shift().map(x=>x.toLowerCase().replace(/[^a-z0-9]/g,''));
+ const aliases={name:['version','translation','name'],t:['transfer','syntactictransfer','transferpct'],l:['lexical','lexicalconsistency','consistency'],f:['fluency','syntacticfluency'],v:['vocabulary','vocab','vocabularyfamiliarity'],c:['aligncoverage','alignmentcoverage','coverage','sourcewordalignmentcoverage']};
+ const ix={};for(const [key,names] of Object.entries(aliases)){ix[key]=headers.findIndex(h=>names.includes(h));if(ix[key]<0&&key!=='c')throw Error('Missing required CSV column: '+names[0]);}
+ const result=[];const seen=new Set();
+ for(const rec of records){const name=(rec[ix.name]||'').toUpperCase();const base=originals.find(x=>x.name===name);if(!base)throw Error('Unknown translation: '+name);if(seen.has(name))throw Error('Duplicate translation: '+name);seen.add(name);
+  const row={...base};for(const k of ['t','l','f','v']){const n=Number((rec[ix[k]]||'').replace('%',''));if(!Number.isFinite(n)||n<0||n>100||!rec[ix[k]])throw Error('Invalid '+k+' score for '+name);row[k]=n;}
+  const coverage=ix.c<0?'':rec[ix.c];row.c=coverage===''||coverage===undefined?null:Number(coverage.replace('%',''));
+  if(row.c!==null&&(!Number.isFinite(row.c)||row.c<0||row.c>100))throw Error('Invalid alignment coverage for '+name);
+  result.push(row);
+ }
+ if(!result.length)throw Error('No translation rows found');return result;
+}
+function updateScope(){
+ const scope=currentScope(), chapter=scope!=='all', loaded=chapter&&passageScores[scope];
+ $('scopeUpload').classList.toggle('active',chapter);
+ $('scopeStatus').classList.toggle('warning',chapter&&!loaded);
+ $('scopeStatus').textContent=chapter?(loaded?`${passageLabels[scope]} · ${loaded.length} passage-specific translations loaded.`:`${passageLabels[scope]} scores not loaded. Import passage-only evaluation results; whole-Bible scores cannot be used.`):'Whole-Bible scores loaded for 11 translations (NWT is passage-only).';
+ $('scatterTitle').textContent=chapter?`${passageLabels[scope]} · Literalness × Readability`:'Literalness × Readability';
+ $('topOverall').textContent='—';
+ $('scopeUpload').querySelector('label').textContent=chapter?`Replace ${passageLabels[scope]} scores CSV`:'Replace passage scores CSV';
+ document.querySelectorAll('.translation-toggle').forEach(chip=>chip.style.display=(chip.dataset.name!=='NWT'&&(!chapter||!loaded||loaded.some(x=>x.name===chip.dataset.name)))||(chapter&&loaded&&loaded.some(x=>x.name===chip.dataset.name))?'':'none');
+ render();
+}
+$('scopeSelect').addEventListener('change',updateScope);
+$('chapterFile').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const scope=currentScope();if(scope==='all')return;try{const parsed=parseCSV(await f.text());passageScores[scope]=parsed;updateScope();}catch(err){alert('Could not import passage scores: '+err.message);}finally{e.target.value='';}});
+$('templateBtn').addEventListener('click',()=>makeDownload(currentScope()+'_scores_template.csv','version,transfer,lexical,fluency,vocabulary,align_coverage\n' + originals.map(x=>x.name+',,,,,').join('\n')+'\n','text/csv;charset=utf-8'));
+
+const litSlider = $('litSlider'), readSlider=$('readSlider'), overallSlider=$('overallSlider'), plot=$('plot');
+const NS='http://www.w3.org/2000/svg';
+const R = {left:82, top:25, right:1055, bottom:540};
+let selected=null, latest=[];
+const visible=new Set(originals.map(d=>d.name));
+let sortState={key:'overall',direction:'desc'};
+const sortLabels={name:'Translation',t:'Transfer',l:'Lexical',f:'Fluency',v:'Vocabulary',x:'Literalness',y:'Readability',overall:'Overall',c:'Align coverage'};
+function S(tag,attrs={},text='') { const e=document.createElementNS(NS,tag); Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v)); if(text!==undefined&&text!==null&&text!=='')e.textContent=text;return e; }
+const fmt=n=>n.toFixed(2);
+const MIN_WEIGHT=1/3, MAX_WEIGHT=2/3;
+function clampWeight(p){return Math.max(MIN_WEIGHT,Math.min(MAX_WEIGHT,p));}
+function weight(){return {lit:clampWeight(Number(litSlider.value)/100),read:clampWeight(Number(readSlider.value)/100),overall:clampWeight(Number(overallSlider.value)/100)};}
+function ratio(p){if(Math.abs(p-2/3)<.001)return '2 : 1';if(Math.abs(p-.5)<.001)return '1 : 1';if(Math.abs(p-1/3)<.001)return '1 : 2';if(p<=.0001)return '0 : 1';if(p>=.9999)return '1 : 0';let k=p/(1-p);return k>=1?`${k.toFixed(2)} : 1`:`1 : ${(1/k).toFixed(2)}`;}
+function updateSliderVisual(slider,p,color){const progress=((clampWeight(p)-MIN_WEIGHT)/(MAX_WEIGHT-MIN_WEIGHT)*100).toFixed(2);slider.style.background=`linear-gradient(90deg,${color} 0%,${color} ${progress}%,#e5eaf4 ${progress}%,#e5eaf4 100%)`;}
+function dataScores(){const {lit,read,overall}=weight();return sourceRows().map(row=>{const x=lit*row.t+(1-lit)*row.l;const y=read*row.f+(1-read)*row.v;return {...row,x,y,overall:overall*x+(1-overall)*y};});}
+function tickFormat(n){return (Math.abs(n-Math.round(n))<.06?n.toFixed(0):n.toFixed(1))+'%';}
+function makeTicks(lo,hi,n=6){const s=(hi-lo)/n;return Array.from({length:n+1},(_,i)=>lo+i*s);}
+function showTooltip(event,d){const el=$('tooltip');el.innerHTML=`<strong style="color:${d.color}">${d.name}</strong><div>Literalness: <b>${fmt(d.x)}%</b></div><div>Readability: <b>${fmt(d.y)}%</b></div><div>Weighted overall: <b>${fmt(d.overall)}%</b></div><div class="mini">Transfer ${fmt(d.t)} · Lexical ${fmt(d.l)}<br>Fluency ${fmt(d.f)} · Vocab ${fmt(d.v)}</div>`;el.style.opacity='1';moveTooltip(event);}
+function moveTooltip(e){const el=$('tooltip');const width=205;el.style.left=Math.max(8,Math.min(window.innerWidth-width-8,e.clientX+17))+'px';el.style.top=Math.max(8,Math.min(window.innerHeight-152,e.clientY+12))+'px';}
+function hideTooltip(){ $('tooltip').style.opacity='0'; }
+function render(){
+ const {lit,read,overall}=weight();
+ $('litRatio').textContent=ratio(lit);$('readRatio').textContent=ratio(read);$('overallRatio').textContent=ratio(overall);
+ $('litLeft').textContent=(lit*100).toFixed(1)+'%';$('litRight').textContent=((1-lit)*100).toFixed(1)+'%';
+ $('readLeft').textContent=(read*100).toFixed(1)+'%';$('readRight').textContent=((1-read)*100).toFixed(1)+'%';
+ $('overallLeft').textContent='Literalness '+(overall*100).toFixed(1)+'%';$('overallRight').textContent='Readability '+((1-overall)*100).toFixed(1)+'%';
+ $('overallFormula').textContent='Overall = '+(overall*100).toFixed(1)+'% × Literalness + '+((1-overall)*100).toFixed(1)+'% × Readability.';
+ updateSliderVisual(litSlider,lit,'#7658f2');updateSliderVisual(readSlider,read,'#1c84d8');updateSliderVisual(overallSlider,overall,'#0f9c80');
+ latest=dataScores();
+ const filtered=latest.filter(d=>visible.has(d.name));
+ const best=[...filtered].sort((a,b)=>b.overall-a.overall)[0];
+ $('topOverall').textContent=best?'Top overall: '+best.name+' · '+fmt(best.overall)+'%':(currentScope()!=='all'&&!passageScores[currentScope()]?'Awaiting passage data':'No translations selected');
+ $('visibilityCount').textContent=filtered.length+' of '+sourceRows().length+' shown';
+ updateVisibilityChips();
+ drawChart(filtered);drawRows(filtered);
+}
+function drawChart(data){
+ if(!data.length){
+   plot.replaceChildren();
+   plot.append(S('rect',{x:R.left,y:R.top,width:R.right-R.left,height:R.bottom-R.top,rx:12,fill:'#fbfcff'}));
+   plot.append(S('text',{x:550,y:290,'text-anchor':'middle',fill:'#64748b','font-size':19,'font-weight':750},(currentScope()!=='all'&&!passageScores[currentScope()]?'Import passage scores to compare':'No translations selected')));
+   plot.append(S('text',{x:550,y:322,'text-anchor':'middle',fill:'#94a3b8','font-size':13},(currentScope()!=='all'&&!passageScores[currentScope()]?'Passage-only metrics must be computed separately.':'Use the checkboxes below to show translations.')));
+   return;
+ }
+ const xs=data.map(d=>d.x),ys=data.map(d=>d.y);
+ const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
+ const padx=Math.max((maxx-minx)*.17,.9),pady=Math.max((maxy-miny)*.19,.9);
+ const x0=minx-padx,x1=maxx+padx,y0=miny-pady,y1=maxy+pady;
+ const XP=v=>R.left+(v-x0)/(x1-x0)*(R.right-R.left);
+ const YP=v=>R.bottom-(v-y0)/(y1-y0)*(R.bottom-R.top);
+ plot.replaceChildren();
+ plot.append(S('rect',{x:R.left,y:R.top,width:R.right-R.left,height:R.bottom-R.top,rx:12,fill:'#fbfcff'}));
+ makeTicks(x0,x1).forEach(v=>{let x=XP(v);plot.append(S('line',{x1:x,y1:R.top,x2:x,y2:R.bottom,class:'guide'}));plot.append(S('text',{x,y:R.bottom+26,'text-anchor':'middle',class:'axis-tick'},tickFormat(v)));});
+ makeTicks(y0,y1).forEach(v=>{let y=YP(v);plot.append(S('line',{x1:R.left,y1:y,x2:R.right,y2:y,class:'guide'}));plot.append(S('text',{x:R.left-14,y:y+4,'text-anchor':'end',class:'axis-tick'},tickFormat(v)));});
+ plot.append(S('text',{x:(R.left+R.right)/2,y:603,'text-anchor':'middle',class:'axis-title'},'Literalness (%)  →'));
+ plot.append(S('text',{x:22,y:(R.top+R.bottom)/2,'text-anchor':'middle',class:'axis-title',transform:`rotate(-90 22 ${(R.top+R.bottom)/2})`},'Readability (%)  →'));
+ const pnts=data.map(d=>({...d,px:XP(d.x),py:YP(d.y)}));
+ // Place compact labels using candidate offsets, avoiding overlaps whenever possible.
+ const taken=[];
+ const placements=new Map();
+ for(const d of [...pnts].sort((a,b)=>a.py-b.py)){
+   const w=d.name.length*8+20,h=25;
+   const options=[
+     {x:d.px+14,y:d.py-27},{x:d.px+14,y:d.py+9},{x:d.px-w-14,y:d.py-27},
+     {x:d.px-w-14,y:d.py+9},{x:d.px-w/2,y:d.py-45},{x:d.px-w/2,y:d.py+19},
+     {x:d.px+24,y:d.py-13},{x:d.px-w-24,y:d.py-13},
+   ];
+   let best=null, bestCost=Infinity;
+   for(const o of options){let box={x:o.x,y:o.y,w,h};let cost=0;
+     if(box.x<R.left+2||box.y<R.top+1||box.x+box.w>R.right-2||box.y+box.h>R.bottom-1)cost+=250;
+     for(const prev of taken){let ox=Math.max(0,Math.min(box.x+box.w,prev.x+prev.w)-Math.max(box.x,prev.x));let oy=Math.max(0,Math.min(box.y+box.h,prev.y+prev.h)-Math.max(box.y,prev.y));cost+=ox*oy*4;}
+     for(const q of pnts){if(q.name===d.name)continue;if(q.px>box.x-12&&q.px<box.x+box.w+12&&q.py>box.y-12&&q.py<box.y+box.h+12)cost+=45;}
+     cost+=Math.abs(o.x-d.px)*.03+Math.abs(o.y-d.py)*.03;
+     if(cost<bestCost){bestCost=cost;best=box;}
+   }
+   placements.set(d.name,best);taken.push(best);
+ }
+ for(const d of pnts){const b=placements.get(d.name);if(selected===d.name){plot.append(S('line',{x1:d.px,y1:d.py,x2:b.x+b.w/2,y2:b.y+b.h/2,stroke:d.color,'stroke-width':1.4,'stroke-dasharray':'3 3',opacity:.65}));}}
+ for(const d of pnts){
+   const g=S('g',{'data-version':d.name});
+   const circle=S('circle',{cx:d.px,cy:d.py,r:selected===d.name?12:9.5,fill:d.color,stroke:'white','stroke-width':3,class:'dot',tabindex:0,role:'button','aria-label':`${d.name}: literalness ${fmt(d.x)} percent, readability ${fmt(d.y)} percent`});
+   g.append(S('circle',{cx:d.px,cy:d.py,r:16,fill:d.color,opacity:selected===d.name?.22:.12}));g.append(circle);
+   const b=placements.get(d.name);
+   g.append(S('rect',{x:b.x,y:b.y,width:b.w,height:b.h,rx:8,class:'tag'}));
+   g.append(S('text',{x:b.x+b.w/2,y:b.y+16.9,'text-anchor':'middle',class:'dot-label'},d.name));
+   circle.addEventListener('pointerenter',e=>showTooltip(e,d));circle.addEventListener('pointermove',moveTooltip);circle.addEventListener('pointerleave',hideTooltip);
+   circle.addEventListener('focus',e=>{const bb=circle.getBoundingClientRect();showTooltip({clientX:bb.x,clientY:bb.y},d);});circle.addEventListener('blur',hideTooltip);
+   circle.addEventListener('click',()=>{selected=selected===d.name?null:d.name;render();});
+   plot.append(g);
+ }
+}
+function sortData(data){
+ return [...data].sort((a,b)=>{
+   const k=sortState.key, av=a[k],bv=b[k];
+   if(av===null||av===undefined) return bv===null||bv===undefined?a.name.localeCompare(b.name):1;
+   if(bv===null||bv===undefined) return -1;
+   const cmp=k==='name'?String(av).localeCompare(String(bv)):(av-bv);
+   return (sortState.direction==='asc'?cmp:-cmp)||a.name.localeCompare(b.name);
+ });
+}
+function updateSortHeader(){
+ document.querySelectorAll('th[data-key]').forEach(th=>{
+  const key=th.dataset.key,active=key===sortState.key;
+  th.setAttribute('aria-sort',active?(sortState.direction==='asc'?'ascending':'descending'):'none');
+  th.querySelector('.sort-mark').textContent=active?(sortState.direction==='asc'?'↑':'↓'):'↕';
+ });
+ $('sortSummary').textContent='Sorted by '+sortLabels[sortState.key]+', '+(sortState.direction==='asc'?'lowest first':'highest first')+' · click a heading to reverse or change sorting';
+}
+function setVisible(name,on){
+ if(on) visible.add(name);else visible.delete(name);
+ if(selected===name&&!on) selected=null;
+ render();
+}
+function updateVisibilityChips(){
+ document.querySelectorAll('.translation-toggle').forEach(chip=>{
+   const on=visible.has(chip.dataset.name);
+   chip.classList.toggle('off',!on);
+   chip.querySelector('input').checked=on;
+ });
+}
+function drawRows(data){
+ updateSortHeader();
+ const body=$('dataRows');body.replaceChildren();
+ if(!data.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=9;td.className='empty-state';td.textContent=(currentScope()!=='all'&&!passageScores[currentScope()]?'Import passage-only component scores above to populate this table.':'No translations selected. Use “Show all” or a translation checkbox above.');tr.append(td);body.append(tr);return;}
+ for(const d of sortData(data)){
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><span class="table-version"><label><input type="checkbox" checked aria-label="Show ${d.name}"><span class="swatch" style="background:${d.color}"></span>${d.name}</label></span></td><td>${fmt(d.t)}%</td><td>${fmt(d.l)}%</td><td>${fmt(d.f)}%</td><td>${fmt(d.v)}%</td><td>${fmt(d.x)}%</td><td>${fmt(d.y)}%</td><td class="overall-col">${fmt(d.overall)}%</td><td>${d.c===null?'—':fmt(d.c)+'%'}</td>`;
+  tr.querySelector('input').addEventListener('change',e=>setVisible(d.name,e.target.checked));
+  body.append(tr);
+ }
+}
+function makeDownload(name,contents,type){const blob=new Blob([contents],{type});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);}
+$('csvBtn').addEventListener('click',()=>{
+ const {lit,read,overall}=weight();const rows=[['version','transfer','lexical','fluency','vocabulary','alignment_coverage','literalness_weighted','readability_weighted','overall_score','transfer_weight','fluency_weight','overall_literalness_weight','overall_readability_weight'],...sortData(latest.filter(d=>visible.has(d.name))).map(d=>[d.name,d.t,d.l,d.f,d.v,d.c??'',d.x.toFixed(6),d.y.toFixed(6),d.overall.toFixed(6),lit.toFixed(6),read.toFixed(6),overall.toFixed(6),(1-overall).toFixed(6)])];
+ makeDownload((currentScope()==='all'?'whole_bible':currentScope())+'_translation_weighted_scores.csv',rows.map(r=>r.join(',')).join('\n')+'\n','text/csv;charset=utf-8');
+});
+$('pngBtn').addEventListener('click',()=>{
+ const svg=plot.cloneNode(true);svg.setAttribute('width','1100');svg.setAttribute('height','620');
+ const css=`.axis-tick{font-family:Arial,sans-serif;font-size:12px;fill:#8b94a8;font-weight:650}.axis-title{font-family:Arial,sans-serif;font-size:14px;fill:#40516c;font-weight:850}.dot-label{font-family:Arial,sans-serif;font-size:12px;font-weight:900;fill:#273451}.tag{fill:white;stroke:#e9edf5;stroke-width:1}.guide{stroke:#edf1f7;stroke-width:1.3}`;
+ const style=S('style',{},css);svg.insertBefore(style,svg.firstChild);
+ const xml=new XMLSerializer().serializeToString(svg);const image=new Image();const u=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));
+ image.onload=()=>{const c=document.createElement('canvas');c.width=2200;c.height=1240;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(image,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>{if(!b)return;const o=URL.createObjectURL(b);const a=document.createElement('a');a.href=o;a.download=(currentScope()==='all'?'whole_bible':currentScope())+'_translation_weights_chart.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(o),3000)},'image/png');};
+ image.onerror=()=>{URL.revokeObjectURL(u);alert('Could not export PNG; try downloading the CSV instead.')};image.src=u;
+});
+$('equalWeightsBtn').addEventListener('click',()=>{litSlider.value='50';readSlider.value='50';overallSlider.value='50';render();});
+litSlider.addEventListener('input',render);readSlider.addEventListener('input',render);overallSlider.addEventListener('input',render);
+// Sort on any live-score column. Clicking the active column toggles direction.
+document.querySelectorAll('.sort-btn').forEach(button=>button.addEventListener('click',()=>{
+ const key=button.dataset.sort;
+ if(sortState.key===key) sortState.direction=sortState.direction==='asc'?'desc':'asc';
+ else {sortState.key=key;sortState.direction=key==='name'?'asc':'desc';}
+ drawRows(latest.filter(d=>visible.has(d.name)));
+}));
+$('showAllBtn').addEventListener('click',()=>{sourceRows().forEach(d=>visible.add(d.name));render();});
+$('hideAllBtn').addEventListener('click',()=>{visible.clear();selected=null;render();});
+for(const d of originals){
+ const chip=document.createElement('label');chip.className='translation-toggle';chip.dataset.name=d.name;
+ chip.innerHTML=`<input type="checkbox" checked aria-label="Show ${d.name}"><span class="legend-dot" style="background:${d.color}"></span><span>${d.name}</span>`;
+ chip.querySelector('input').addEventListener('change',e=>setVisible(d.name,e.target.checked));
+ $('legend').append(chip);
+}
+updateScope();
+</script>
+</body>
+</html>

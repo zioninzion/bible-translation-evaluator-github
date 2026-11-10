@@ -1,0 +1,39 @@
+# User-provided translations, including any copyrighted Bible texts
+/translations/**
+!/translations/private/
+!/translations/private/.gitkeep
+/translations/private/**
+!/translations/private/.gitkeep
+*.txt
+*.pdf
+*.docx
+*.epub
+*.zip
+
+# Downloaded source corpora, models, evaluation outputs
+/data/**
+!/data/.gitkeep
+/cache/**
+!/cache/.gitkeep
+/results/**
+!/results/.gitkeep
+*.sqlite
+*.jsonl
+*.conllu
+*.xml
+*.tsv
+*.csv
+*.gz
+*.png
+*.jpg
+*.jpeg
+
+# Local environment and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.pytest_cache/
+.env
+.env.*

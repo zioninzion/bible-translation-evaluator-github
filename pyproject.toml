@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "bible-translation-evaluation-replication"
+version = "0.1.0"
+description = "Auditable approximation of the quantitative Bible translation evaluation reported by GBI"
+requires-python = ">=3.10"
+dependencies = []
+[project.scripts]
+bibleeval = "bible_eval:main"
+[tool.setuptools]
+py-modules = ["bible_eval"]
