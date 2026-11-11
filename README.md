@@ -4,6 +4,8 @@ A GitHub-ready **code-only**, independent experimental implementation inspired b
 
 **No Bible translation texts, NWT excerpts, MACULA source data, Brown Corpus data, external research PDFs, or preprocessed verse datasets are included.** The interactive explorer includes only numerical scores from a prior experiment (no verse text). Those results are illustrative and not independently validated.
 
+**Example:** Try the [Bible Translation Explorer](https://atlantachristianstudents.github.io/adless/apps/bible-translation-explorer/) for an interactive example of the program.
+
 ## Research basis and attribution
 
 This project is **inspired by the research framework**, rather than a reproduction of the published numerical results, in:
